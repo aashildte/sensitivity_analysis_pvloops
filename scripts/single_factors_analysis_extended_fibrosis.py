@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
+import yaml
 
 from collections import defaultdict
 from metrics import get_metrics, get_pv_loop, get_loops
@@ -23,7 +24,13 @@ plt.rcParams.update({"mathtext.default": "regular"})
 extended_folder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/extended_fibrosis"
 original_folder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
 
-cases = ["AF2", "AF4", "AF5"]
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder_org_fib = config['input_data_org_fib']
+    mainfolder_ext_fib = config['input_data_ext_fib']
+
+cases = ["P1", "P2", "P3"]
+
 
 single_factors = [
     "baseline",
@@ -64,11 +71,11 @@ captions = [
 
 
 def cas2patient(cas):
-    if cas == "AF2":
+    if cas == "P1":
         return r"P$_1$"
-    elif cas == "AF4":
+    elif cas == "P2":
         return r"P$_2$"
-    elif cas == "AF5":
+    elif cas == "P3":
         return r"P$_3$"
 
 
@@ -76,7 +83,7 @@ def get_metrics_local(mainfolder, PA_indices):
     metrics = defaultdict(list)
 
     for cas in cases:
-        subfolders = [f"{cas}_{factor}_{factor}" for factor in single_factors]
+        subfolders = [f"{cas}/{factor}" for factor in single_factors]
 
         fins = [f"{mainfolder}/{subfolder}/cav.LA.csv" for subfolder in subfolders]
 
@@ -118,8 +125,8 @@ def get_metrics_local(mainfolder, PA_indices):
     return metrics
 
 
-metrics_original = get_metrics_local(original_folder, PA_indices_original)
-metrics_extended = get_metrics_local(extended_folder, PA_indices_extended)
+metrics_original = get_metrics_local(mainfolder_org_fib, PA_indices_original)
+metrics_extended = get_metrics_local(mainfolder_ext_fib, PA_indices_extended)
 
 C_captions = [cap.capitalize() for cap in captions]
 

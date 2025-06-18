@@ -10,27 +10,28 @@ in the OFAT analysis, original fibrosis burden.
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
+import yaml
 
 from metrics import get_loops, get_pv_loop, plot_loops, get_PA_indices
 
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_org_fib']
 
 def get_indices(runs):
     indices = defaultdict(lambda: defaultdict(int))
 
-    indices["AF4"]["mux0.5"] = 2
+    indices["P2"]["mux0.5"] = 2
 
     for run in runs:
-        indices["AF5"][run] = 1
+        indices["P3"][run] = 1
 
     return indices
 
-
-mainfolder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
-
 cases = [
-    "AF2",
-    "AF4",
-    "AF5",
+    "P1",
+    "P2",
+    "P3",
 ]
 runs = [
     "baseline",
@@ -53,41 +54,41 @@ PA_indices = {}
 for cas in cases:
     PA_indices[cas] = {}
     for run in runs:
-        fin = f"{mainfolder}/{cas}_{run}_{run}/cav.LA.csv"
+        fin = f"{mainfolder}/{cas}/{run}/cav.LA.csv"
         print(cas, run)
         pressure, volume = get_pv_loop(fin)
 
-        if cas == "AF2" and run == "baseline":
+        if cas == "P1" and run == "baseline":
             A_index = 117
             P_index = 773
-        elif cas == "AF2" and run == "CV_L":
+        elif cas == "P1" and run == "CV_L":
             A_index = 117
             P_index = 772
-        elif cas == "AF2" and run == "CV_T":
+        elif cas == "P1" and run == "CV_T":
             A_index = 117
             P_index = 773
-        elif cas == "AF2" and run == "gK1":
+        elif cas == "P1" and run == "gK1":
             A_index = 116
             P_index = 782
-        elif cas == "AF2" and run == "gCaL":
+        elif cas == "P1" and run == "gCaL":
             A_index = 120
             P_index = 728
-        elif cas == "AF2" and run == "gNa":
+        elif cas == "P1" and run == "gNa":
             A_index = 117
             P_index = 770
-        elif cas == "AF2" and run == "mux0.5":
+        elif cas == "P1" and run == "mux0.5":
             A_index = 119
             P_index = 773
-        elif cas == "AF2" and run == "Tax0.5":
+        elif cas == "P1" and run == "Tax0.5":
             A_index = 116
             P_index = 765
-        elif cas == "AF2" and run == "stiffness_longitudinal":
+        elif cas == "P1" and run == "stiffness_longitudinal":
             A_index = 116
             P_index = 772
-        elif cas == "AF2" and run == "stiffness_transverse":
+        elif cas == "P1" and run == "stiffness_transverse":
             A_index = 116
             P_index = 775
-        elif cas == "AF4" and run == "mux0.5":
+        elif cas == "P2" and run == "mux0.5":
             A_index = 118
             P_index = 794
         elif False:
@@ -110,8 +111,6 @@ np.save(fout, PA_indices)
 fin = "PA_indices_single_factors_original_fibrosis.npy"
 PA_indices = np.load(fin, allow_pickle=True).item()
 
-print(PA_indices)
-
 fig, axes = plt.subplots(
     len(cases), len(runs), figsize=(15, 3), sharex="row", sharey="row"
 )
@@ -125,10 +124,8 @@ for i in range(len(runs)):
 
 for cas, axs in zip(cases, axes):
     for run, axis in zip(runs, axs):
-        fin = f"{mainfolder}/{cas}_{run}_{run}/cav.LA.csv"
+        fin = f"{mainfolder}/{cas}/{run}/cav.LA.csv"
         A_index, P_index = PA_indices[cas][run]
-
-        print(cas, run, A_index, P_index)
 
         P_loop_volume, P_loop_pressure, A_loop_volume, A_loop_pressure = get_loops(
             fin, A_index, P_index

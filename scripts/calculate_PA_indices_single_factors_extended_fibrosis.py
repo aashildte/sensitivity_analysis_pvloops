@@ -13,22 +13,26 @@ from collections import defaultdict
 
 from metrics import get_loops, get_pv_loop, plot_loops, get_PA_indices
 
+import yaml
+
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_ext_fib']
+
 
 def get_indices(runs):
     indices = defaultdict(lambda: defaultdict(int))
 
     for run in runs:
-        indices["AF5"][run] = 1
+        indices["P3"][run] = 1
 
     return indices
 
 
-mainfolder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/extended_fibrosis"
-
 cases = [
-    "AF2",
-    "AF4",
-    "AF5",
+    "P1",
+    "P2",
+    "P3",
 ]
 runs = [
     "baseline",
@@ -49,26 +53,26 @@ PA_indices = {}
 for cas in cases:
     PA_indices[cas] = {}
     for run in runs:
-        fin = f"{mainfolder}/{cas}_{run}_{run}/cav.LA.csv"
+        fin = f"{mainfolder}/{cas}/{run}/cav.LA.csv"
         print(cas, run)
         pressure, volume = get_pv_loop(fin)
 
-        if cas == "AF2" and run == "baseline":
+        if cas == "P1" and run == "baseline":
             A_index = 117
             P_index = 773
-        elif cas == "AF2" and run == "CV_L":
+        elif cas == "P1" and run == "CV_L":
             A_index = 117
             P_index = 772
-        elif cas == "AF2" and run == "gCaL":
+        elif cas == "P1" and run == "gCaL":
             A_index = 119
             P_index = 716
-        elif cas == "AF2" and run == "Tax0.5":
+        elif cas == "P1" and run == "Tax0.5":
             A_index = 116
             P_index = 762
-        elif cas == "AF2" and run == "stiffness_transverse":
+        elif cas == "P1" and run == "stiffness_transverse":
             A_index = 116
             P_index = 775
-        elif cas == "AF4" and run == "gK1":
+        elif cas == "P2" and run == "gK1":
             A_index = 114
             P_index = 804
         elif False:
@@ -104,7 +108,7 @@ for i in range(len(runs)):
 
 for cas, axs in zip(cases, axes):
     for run, axis in zip(runs, axs):
-        fin = f"{mainfolder}/{cas}_{run}_{run}/cav.LA.csv"
+        fin = f"{mainfolder}/{cas}/{run}/cav.LA.csv"
         A_index, P_index = PA_indices[cas][run]
 
         P_loop_volume, P_loop_pressure, A_loop_volume, A_loop_pressure = get_loops(

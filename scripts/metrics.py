@@ -161,7 +161,7 @@ def analyze_metrics(folder, cases, runs, captions, PA_indices, baseline):
     metrics = defaultdict(list)
     for cas in cases:
         for key, value in runs.items():
-            fin = f"{folder}/{cas}_{key}_{value}_{key}_{value}/cav.LA.csv"
+            fin = f"{folder}/{cas}/{key}_{value}/cav.LA.csv"
 
             volume, pressure = get_pv_loop(fin)
             p_start, a_start = PA_indices[cas][key]

@@ -9,9 +9,13 @@ This script plots volume, pressure, and pv loops for all 10 cycles (convergence 
 import numpy as np
 import matplotlib.pyplot as plt
 
-mainfolder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
+import yaml
 
-cases = ["AF2", "AF4", "AF5"]
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_org_fib']
+
+cases = ["P1", "P2", "P3"]
 single_factors = ["baseline"]
 
 
@@ -34,9 +38,9 @@ def read_all_data(fin):
 
 
 def cas2patient(cas):
-    if cas == "AF2":
+    if cas == "P1":
         return "Patient 1"
-    elif cas == "AF4":
+    elif cas == "P2":
         return "Patient 2"
     return "Patient 3"
 
@@ -54,7 +58,7 @@ fig, axes = plt.subplots(3, 3, figsize=(8.0, 6.0), sharey="row")
 for j, cas in enumerate(cases):
     print(cas)
     factor = "baseline"
-    subfolder = f"{cas}_{factor}_{factor}"
+    subfolder = f"{cas}/{factor}"
     fin = f"{mainfolder}/{subfolder}/cav.LA.csv"
 
     volume, pressure = read_all_data(fin)

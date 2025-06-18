@@ -19,9 +19,14 @@ from collections import defaultdict
 from metrics import get_metrics, get_pv_loop, get_loops
 
 plt.rcParams.update({"mathtext.default": "regular"})
-mainfolder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
 
-cases = ["AF2", "AF4", "AF5"]
+import yaml
+
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_org_fib']
+
+cases = ["P1", "P2", "P3"]
 
 single_factors = [
     "baseline",
@@ -59,18 +64,18 @@ captions = [
 
 
 def cas2patient(cas):
-    if cas == "AF2":
+    if cas == "P1":
         return r"$P_1$"
-    elif cas == "AF4":
+    elif cas == "P2":
         return r"$P_2$"
-    elif cas == "AF5":
+    elif cas == "P3":
         return r"$P_3$"
 
 
 metrics = defaultdict(list)
 
 for cas in cases:
-    subfolders = [f"{cas}_{factor}_{factor}" for factor in single_factors]
+    subfolders = [f"{cas}/{factor}" for factor in single_factors]
 
     fins = [f"{mainfolder}/{subfolder}/cav.LA.csv" for subfolder in subfolders]
 
@@ -174,8 +179,7 @@ axes[4].set_ylabel("Upstroke pressure diff.,\nrelative to baseline(-)")
 #    axis.legend(["Patient 1", "Patient 2", "Patient 3"])
 
 plt.tight_layout()
-plt.savefig("single_factor_relative_metrics_v3.pdf")
-
+plt.savefig("single_factor_relative_metrics.pdf")
 
 metrics_percentage = []
 

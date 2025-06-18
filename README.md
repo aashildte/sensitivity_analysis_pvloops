@@ -11,4 +11,6 @@ All scripts can be found in the "scripts" folder.
 
 # Underlying data
 
-TBA; coming
+Data used for our publication will be published upon manuscript acceptance.
+
+In "scripts/mainfolder.yaml", please update the paths to the location either for download or (if ever applicable) your own data files.

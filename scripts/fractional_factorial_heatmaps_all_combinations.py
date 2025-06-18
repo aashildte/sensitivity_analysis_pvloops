@@ -18,7 +18,12 @@ from metrics import get_metrics, get_pv_loop, get_loops
 
 plt.rcParams.update({"mathtext.default": "regular"})
 
-cases = ["AF2", "AF4", "AF5"]
+import yaml
+
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder_org_fib = config['input_data_org_fib']
+    mainfolder_ext_fib = config['input_data_ext_fib']
 
 runs = {
     "Run1": "BBBBBFFFF",
@@ -55,21 +60,18 @@ runs = {
     "Run32": "FFFFFFFFF",
 }
 
+cases = ["P1", "P2", "P3"]
+baseline = {"P1": {}, "P2": {}, "P3": {}}
 
 def get_indices(fin):
     return np.load(fin, allow_pickle=True).item()
-
-mainfolder = f"/data2/aashild/sensitivityanalysis/SA_gen2.2"
-
-cases = ["AF2", "AF4", "AF5"]
-baseline = {"AF2": {}, "AF4": {}, "AF5": {}}
 
 fin = "PA_indices_single_factors_original_fibrosis.npy"
 PA_indices_single_factors = get_indices(fin)
 
 
 for cas in cases:
-    fin = f"{mainfolder}/original_fibrosis/{cas}_baseline_baseline/cav.LA.csv"
+    fin = f"{mainfolder_org_fib}/{cas}/baseline/cav.LA.csv"
     volume, pressure = get_pv_loop(fin)
     p_start, a_start = PA_indices_single_factors[cas]["baseline"]
     _, _, A_loop_volume, A_loop_pressure = get_loops(fin, p_start, a_start)
@@ -97,14 +99,19 @@ captions = [
 
 
 def cas2patient(cas):
-    if cas == "AF2":
+    if cas == "P1":
         return r"$P_1$"
-    elif cas == "AF4":
+    elif cas == "P2":
         return r"$P_2$"
-    elif cas == "AF5":
+    elif cas == "P3":
         return r"$P_3$"
 
 for fibrosis_burden in ["original", "extended"]:
+
+    if fibrosis_burden=="original":
+        mainfolder = mainfolder_org_fib
+    else:
+        mainfolder = mainfolder_ext_fib
 
     fin = f"PA_indices_fractional_factorial_{fibrosis_burden}_fibrosis.npy"
     PA_indices_fractional_factorial_original = get_indices(fin)
@@ -112,9 +119,9 @@ for fibrosis_burden in ["original", "extended"]:
     metrics = defaultdict(list)
 
     for cas in cases:
-        subfolders = [f"{cas}_{k}_{v}_{k}_{v}" for (k, v) in runs.items()]
+        subfolders = [f"{cas}/{k}_{v}" for (k, v) in runs.items()]
 
-        fins = [f"{mainfolder}/{fibrosis_burden}_fibrosis/{subfolder}/cav.LA.csv" for subfolder in subfolders]
+        fins = [f"{mainfolder}/{subfolder}/cav.LA.csv" for subfolder in subfolders]
 
         for fin, run in zip(fins, runs):
             volume, pressure = get_pv_loop(fin)

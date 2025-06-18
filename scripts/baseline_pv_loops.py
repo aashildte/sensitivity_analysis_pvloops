@@ -17,15 +17,16 @@ from metrics import get_metrics, get_loops, plot_loops, get_pv_loop
 
 plt.rcParams.update({"mathtext.default": "regular"})
 
-mainfolder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
+import yaml
 
-cases = ["AF2", "AF4", "AF5"]
-single_factors = ["baseline"]
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_org_fib']
 
+cases = ["P1", "P2", "P3"]
 
 def get_indices(fin):
     return np.load(fin, allow_pickle=True).item()
-
 
 fin = "PA_indices_single_factors_original_fibrosis.npy"
 PA_indices = get_indices(fin)
@@ -35,12 +36,9 @@ fig, axes = plt.subplots(1, 3, figsize=(10, 3.5), sharey=True)
 metrics = defaultdict(list)
 
 for axis, cas in zip(axes, cases):
-    subfolders = [f"{cas}_{factor}_{factor}" for factor in single_factors]
-
-    fins = [f"{mainfolder}/{subfolder}/cav.LA.csv" for subfolder in subfolders]
 
     factor = "baseline"
-    subfolder = f"{cas}_{factor}_{factor}"
+    subfolder = f"{cas}/{factor}"
     fin = f"{mainfolder}/{subfolder}/cav.LA.csv"
 
     p_start, a_start = PA_indices[cas][factor]

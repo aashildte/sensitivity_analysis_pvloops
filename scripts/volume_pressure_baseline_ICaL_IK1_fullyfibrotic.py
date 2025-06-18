@@ -18,9 +18,13 @@ from metrics import get_metrics, get_pv_loop, get_loops
 
 plt.rcParams.update({"mathtext.default": "regular"})
 
-mainfolder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
+import yaml
 
-cases = ["AF2", "AF4", "AF5"]
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_org_fib']
+
+cases = ["P1", "P2", "P3"]
 
 single_factors = [
     "baseline",
@@ -49,8 +53,8 @@ metrics = defaultdict(list)
 
 fig, axes = plt.subplots(3, 1, figsize=(3.0, 6.0))
 
-cas = "AF2"
-subfolders = [f"{cas}_{factor}_{factor}" for factor in single_factors]
+cas = "P1"
+subfolders = [f"{cas}/{factor}" for factor in single_factors]
 fins = [f"{mainfolder}/{subfolder}/cav.LA.csv" for subfolder in subfolders]
 
 # baseline case

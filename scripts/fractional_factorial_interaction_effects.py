@@ -18,11 +18,14 @@ from collections import defaultdict
 
 from metrics import get_metrics, get_loops, plot_loops, get_pv_loop, analyze_metrics
 
-mainfolder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
+import yaml
+
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_org_fib']
 
 def get_PA_indices(fin):
     return np.load(fin, allow_pickle=True).item()
-
 
 fin = "PA_indices_fractional_factorial_original_fibrosis.npy"
 PA_indices_fractional_factorial = get_PA_indices(fin)
@@ -31,7 +34,7 @@ fin = "PA_indices_single_factors_original_fibrosis.npy"
 PA_indices_single_factors = get_PA_indices(fin)
 
 
-cases = ["AF2", "AF4", "AF5"]
+cases = ["P1", "P2", "P3"]
 runs = {
     "Run1": "BBBBBFFFF",
     "Run2": "FBBBBFBBB",
@@ -69,10 +72,10 @@ runs = {
 
 num_factors = 9
 
-baseline = {"AF2": {}, "AF4": {}, "AF5": {}}
+baseline = {"P1": {}, "P2": {}, "P3": {}}
 
 for cas in cases:
-    fin = f"{mainfolder}/{cas}_baseline_baseline/cav.LA.csv"
+    fin = f"{mainfolder}/{cas}/baseline/cav.LA.csv"
     volume, pressure = get_pv_loop(fin)
     p_start, a_start = PA_indices_single_factors[cas]["baseline"]
     _, _, A_loop_volume, A_loop_pressure = get_loops(fin, p_start, a_start)
@@ -104,7 +107,7 @@ df_O = analyze_metrics(
     mainfolder, cases, runs, captions, PA_indices_fractional_factorial, baseline
 )
 
-metrics = baseline["AF2"].keys()
+metrics = baseline["P1"].keys()
 
 interactions_FF = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 interactions_FB = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
@@ -275,5 +278,5 @@ fig_hm.tight_layout()
 fig_hm.savefig("heatmaps_interaction.pdf")
 plt.show()
 fig.tight_layout()
-fig.savefig("interaction_curves2.pdf")
+fig.savefig("interaction_lines.pdf")
 plt.show()

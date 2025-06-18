@@ -15,8 +15,12 @@ from statannotations.Annotator import Annotator
 
 from metrics import get_metrics, get_pv_loop, get_loops
 
+import yaml
 
-folder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_org_fib']
+
 runs = {
     "Run1": "BBBBBFFFF",
     "Run2": "FBBBBFBBB",
@@ -54,8 +58,8 @@ runs = {
 
 cmap = plt.cm.get_cmap("Reds", 42)
 
-cases = ["AF2", "AF4", "AF5"]
-baseline = {"AF2": {}, "AF4": {}, "AF5": {}}
+cases = ["P1", "P2", "P3"]
+baseline = {"P1": {}, "P2": {}, "P3": {}}
 
 fig, axes = plt.subplots(1, 3, figsize=(9.0, 2.5), sharey=True)
 
@@ -63,7 +67,7 @@ for cas, axis in zip(cases, axes):
     for key, value in runs.items():
         n = int(key[3:])
         color = cmap(np.random.randint(10, 42))
-        fin = f"{folder}/{cas}_{key}_{value}_{key}_{value}/cav.LA.csv"
+        fin = f"{mainfolder}/{cas}/{key}_{value}/cav.LA.csv"
 
         volume, pressure = get_pv_loop(fin)
 
@@ -72,7 +76,7 @@ for cas, axis in zip(cases, axes):
         )  # , label=key)
 
 for cas, axis in zip(cases, axes):
-    fin = f"{folder}/{cas}_baseline_baseline/cav.LA.csv"
+    fin = f"{mainfolder}/{cas}/baseline/cav.LA.csv"
     volume, pressure = get_pv_loop(fin)
 
     axis.plot(volume, pressure, "--", color="black", linewidth=2.0, label="Baseline")

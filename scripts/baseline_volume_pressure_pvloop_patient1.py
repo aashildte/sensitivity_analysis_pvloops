@@ -11,11 +11,15 @@ import matplotlib.pyplot as plt
 
 from metrics import get_pv_loop
 
-mainfolder = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
+import yaml
 
-cas = "AF2"
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_org_fib']
+
+cas = "P1"
 factor = "baseline"
-subfolder = f"{cas}_{factor}_{factor}"
+subfolder = f"{cas}/{factor}"
 fin = f"{mainfolder}/{subfolder}/cav.LA.csv"
 volume, pressure = get_pv_loop(fin)
 time = np.linspace(0, 1000, len(volume))

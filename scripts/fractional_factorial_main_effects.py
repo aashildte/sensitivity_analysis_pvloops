@@ -19,12 +19,17 @@ plt.rcParams.update({"mathtext.default": "regular"})
 
 from metrics import get_metrics, get_pv_loop, get_loops
 
+import yaml
 
-def analyze_metrics(folder, PA_indices, baseline):
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder = config['input_data_org_fib']
+
+def analyze_metrics(mainfolder, PA_indices, baseline):
     metrics = defaultdict(list)
     for cas in cases:
         for key, value in runs.items():
-            fin = f"{folder}/{cas}_{key}_{value}_{key}_{value}/cav.LA.csv"
+            fin = f"{mainfolder}/{cas}/{key}_{value}/cav.LA.csv"
 
             volume, pressure = get_pv_loop(fin)
             p_start, a_start = PA_indices[cas][key]
@@ -55,7 +60,6 @@ def analyze_metrics(folder, PA_indices, baseline):
 
     return df_metrics
 
-mainfolder_o = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
 
 runs = {
     "Run1": "BBBBBFFFF",
@@ -106,11 +110,11 @@ PA_indices_fractional_factorial_original = get_indices(fin)
 num_factors = 9
 num_metrics = 5
 
-cases = ["AF2", "AF4", "AF5"]
-baseline = {"AF2": {}, "AF4": {}, "AF5": {}}
+cases = ["P1", "P2", "P3"]
+baseline = {"P1": {}, "P2": {}, "P3": {}}
 
 for cas in cases:
-    fin = f"{mainfolder_o}/{cas}_baseline_baseline/cav.LA.csv"
+    fin = f"{mainfolder}/{cas}/baseline/cav.LA.csv"
     volume, pressure = get_pv_loop(fin)
     p_start, a_start = PA_indices_single_factors[cas]["baseline"]
     _, _, A_loop_volume, A_loop_pressure = get_loops(fin, p_start, a_start)
@@ -137,11 +141,11 @@ captions = [
 
 
 def case_patient(cas):
-    if cas == "AF2":
+    if cas == "P1":
         return "Patient 1"
-    if cas == "AF4":
+    if cas == "P2":
         return "Patient 2"
-    if cas == "AF5":
+    if cas == "P3":
         return "Patient 3"
 
 
@@ -153,9 +157,9 @@ palettes = [
     ["violet", "purple"],
 ]
 
-df_O = analyze_metrics(mainfolder_o, PA_indices_fractional_factorial_original, baseline)
+df_O = analyze_metrics(mainfolder, PA_indices_fractional_factorial_original, baseline)
 fig, axes = plt.subplots(num_metrics, 9, sharex=True, sharey=True, figsize=(8, 8))
-metrics = list(baseline["AF5"].keys())
+metrics = list(baseline["P1"].keys())
 
 metrics_heatmap = np.zeros((9, 5))
 

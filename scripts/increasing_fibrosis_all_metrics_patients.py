@@ -14,6 +14,13 @@ from collections import defaultdict
 
 from metrics import get_metrics, get_pv_loop, get_loops
 
+import yaml
+
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder_org_fib = config['input_data_org_fib']
+    mainfolder_ext_fib = config['input_data_ext_fib']
+
 
 def analyze_metrics(folder, PA_indices_FF, PA_indices_single_factors, baseline, fib):
     metrics = defaultdict(list)
@@ -22,7 +29,7 @@ def analyze_metrics(folder, PA_indices_FF, PA_indices_single_factors, baseline, 
 
     for cas, f_value in zip(cases, fib):
         for run in runs:
-            fin = f"{folder}/{cas}_{run}_{run}/cav.LA.csv"
+            fin = f"{folder}/{cas}/{run}/cav.LA.csv"
             key = run
             if "Run" in run:
                 key = run.split("_")[0]
@@ -53,9 +60,6 @@ def analyze_metrics(folder, PA_indices_FF, PA_indices_single_factors, baseline, 
     return df_metrics
 
 
-mainfolder_o = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
-mainfolder_e = "/data2/aashild/sensitivityanalysis/SA_gen2.2/extended_fibrosis"
-
 def get_indices(fin):
     return np.load(fin, allow_pickle=True).item()
 
@@ -74,11 +78,11 @@ PA_indices_fractional_factorial_extended = get_indices(fin)
 num_factors = 9
 num_metrics = 5
 
-cases = ["AF2", "AF4", "AF5"]
-baseline = {"AF2": {}, "AF4": {}, "AF5": {}}
+cases = ["P1", "P2", "P3"]
+baseline = {"P1": {}, "P2": {}, "P3": {}}
 
 for cas in cases:
-    fin = f"{mainfolder_o}/{cas}_baseline_baseline/cav.LA.csv"
+    fin = f"{mainfolder_org_fib}/{cas}/baseline/cav.LA.csv"
     volume, pressure = get_pv_loop(fin)
     p_start, a_start = PA_indices_single_factors[cas]["baseline"]
     _, _, A_loop_volume, A_loop_pressure = get_loops(fin, p_start, a_start)
@@ -104,14 +108,14 @@ fib_O = [15.6, 23.9, 17.9]
 fib_E = [15.6 * 1.5, 23.9 * 1.5, 17.9 * 1.5]
 
 df_O = analyze_metrics(
-    mainfolder_o,
+    mainfolder_org_fib,
     PA_indices_fractional_factorial_original,
     PA_indices_single_factors,
     baseline,
     fib_O,
 )
 df_E = analyze_metrics(
-    mainfolder_e,
+    mainfolder_ext_fib,
     PA_indices_fractional_factorial_extended,
     PA_indices_single_factors_extended,
     baseline,
@@ -123,7 +127,7 @@ metric_names = ["A-loop area", "booster", "reservoir", "conduit", "pressure_diff
 fig, axes = plt.subplots(1, 5, sharex=True, figsize=(13, 2.5))
 
 for metric, axis in zip(metric_names, axes):
-    for i, cas in enumerate(["AF2", "AF4", "AF5"]):
+    for i, cas in enumerate(["P1", "P2", "P3"]):
         data_org_case = df_O[df_O["Case"] == cas]
         data_org_case = data_org_case[data_org_case["Run"] == "Run32"]
         data_ext_case = df_E[df_E["Case"] == cas]

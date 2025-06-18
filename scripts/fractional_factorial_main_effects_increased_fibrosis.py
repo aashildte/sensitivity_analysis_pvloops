@@ -19,6 +19,12 @@ from matplotlib.colors import LinearSegmentedColormap
 
 from metrics import get_metrics, get_pv_loop, get_loops
 
+import yaml
+
+with open('mainfolder.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+    mainfolder_org_fib = config['input_data_org_fib']
+    mainfolder_ext_fib = config['input_data_ext_fib']
 
 def annotate(p):
     if 5.00e-02 < p <= 1.00e00:
@@ -37,7 +43,7 @@ def analyze_metrics(folder, PA_indices, baseline):
     metrics = defaultdict(list)
     for cas in cases:
         for key, value in runs.items():
-            fin = f"{folder}/{cas}_{key}_{value}_{key}_{value}/cav.LA.csv"
+            fin = f"{folder}/{cas}/{key}_{value}/cav.LA.csv"
 
             volume, pressure = get_pv_loop(fin)
             p_start, a_start = PA_indices[cas][key]
@@ -69,8 +75,6 @@ def analyze_metrics(folder, PA_indices, baseline):
     return df_metrics
 
 
-mainfolder_o = "/data2/aashild/sensitivityanalysis/SA_gen2.2/original_fibrosis"
-mainfolder_e = "/data2/aashild/sensitivityanalysis/SA_gen2.2/extended_fibrosis"
 runs = {
     "Run1": "BBBBBFFFF",
     "Run2": "FBBBBFBBB",
@@ -123,11 +127,11 @@ PA_indices_fractional_factorial_extended = get_indices(fin)
 num_factors = 9
 num_metrics = 5
 
-cases = ["AF2", "AF4", "AF5"]
-baseline = {"AF2": {}, "AF4": {}, "AF5": {}}
+cases = ["P1", "P2", "P3"]
+baseline = {"P1": {}, "P2": {}, "P3": {}}
 
 for cas in cases:
-    fin = f"{mainfolder_o}/{cas}_baseline_baseline/cav.LA.csv"
+    fin = f"{mainfolder_org_fib}/{cas}/baseline/cav.LA.csv"
     volume, pressure = get_pv_loop(fin)
     p_start, a_start = PA_indices_single_factors[cas]["baseline"]
     _, _, A_loop_volume, A_loop_pressure = get_loops(fin, p_start, a_start)
@@ -154,11 +158,11 @@ captions = [
 
 
 def case_patient(cas):
-    if cas == "AF2":
+    if cas == "P1":
         return "Patient 1"
-    if cas == "AF5":
+    if cas == "P3":
         return "Patient 2"
-    if cas == "AF5":
+    if cas == "P3":
         return "Patient 3"
 
 
@@ -170,14 +174,14 @@ palettes = [
     ["violet", "purple"],
 ]
 
-df_O = analyze_metrics(mainfolder_o, PA_indices_fractional_factorial_original, baseline)
-df_E = analyze_metrics(mainfolder_e, PA_indices_fractional_factorial_extended, baseline)
+df_O = analyze_metrics(mainfolder_org_fib, PA_indices_fractional_factorial_original, baseline)
+df_E = analyze_metrics(mainfolder_ext_fib, PA_indices_fractional_factorial_extended, baseline)
 
 
 fig, axes = plt.subplots(
     num_metrics, len(captions), sharex=True, sharey=True, figsize=(7, 8)
 )
-metrics = list(baseline["AF5"].keys())
+metrics = list(baseline["P3"].keys())
 
 significance = []
 
